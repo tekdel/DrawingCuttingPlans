@@ -1,6 +1,6 @@
 ﻿
 #include "stdafx.h"
-
+#include "CImg.h"
 
 #ifdef __linux__
 #include <unistd.h>
@@ -21,11 +21,11 @@
 
 static wchar_t *g_PropNames[] = {L"IsEnabled", L"IsTimerPresent"};
 static wchar_t *g_MethodNames[] = {L"Enable", L"Disable", L"ShowInStatusLine", 
-        L"StartTimer", L"StopTimer", L"LoadPicture"};
+        L"StartTimer", L"StopTimer", L"LoadPicture", L"DrawCuttingPlan"};
 
 static wchar_t *g_PropNamesRu[] = { L"Включен", L"ЕстьТаймер" };
 static wchar_t *g_MethodNamesRu[] = { L"Включить", L"Выключить", L"ПоказатьВСтрокеСтатуса",
-		L"СтартТаймер", L"СтопТаймер", L"ЗагрузитьКартинку" };
+		L"СтартТаймер", L"СтопТаймер", L"ЗагрузитьКартинку", L"НарисоватьЭскиз" };
 
 
 static const wchar_t g_kClassNames[] = L"CDrawingCuttingPlans"; //"|OtherClass1|OtherClass2";
@@ -108,7 +108,7 @@ void CDrawingCuttingPlans::Done()
 //---------------------------------------------------------------------------//
 bool CDrawingCuttingPlans::RegisterExtensionAs(WCHAR_T** wsExtensionName)
 { 
-    wchar_t *wsExtension = L"SomeName";
+    wchar_t *wsExtension = L"DrawingCuttingPlans";
     int iActualSize = ::wcslen(wsExtension) + 1;
     WCHAR_T* dest = 0;
 
@@ -301,6 +301,8 @@ long CDrawingCuttingPlans::GetNParams(const long lMethodNum)
         return 1;
     case eMethLoadPicture:
         return 1;
+	case eMethDrawCuttingPlan:
+		return 1;
     default:
         return 0;
     }
@@ -335,6 +337,8 @@ bool CDrawingCuttingPlans::HasRetVal(const long lMethodNum)
     { 
     case eMethLoadPicture:
         return true;
+	case eMethDrawCuttingPlan:
+		return true;
     default:
         return false;
     }
@@ -474,6 +478,72 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
             delete[] mbstr;
 
         break;
+	case eMethDrawCuttingPlan:
+		{
+            if (!lSizeArray || !paParams)
+                return false;
+            
+            switch(TV_VT(paParams))
+            {
+            case VTYPE_PSTR:
+                name = paParams->pstrVal;
+                break;
+            case VTYPE_PWSTR:
+                ::convFromShortWchar(&wsTmp, TV_WSTR(paParams));
+                size = wcstombs(0, wsTmp, 0)+1;
+                mbstr = new char[size];
+                memset(mbstr, 0, size);
+                size = wcstombs(mbstr, wsTmp, getLenShortWcharStr(TV_WSTR(paParams)));
+                name = mbstr;
+                break;
+            default:
+                return false;
+            }
+        }
+
+		if (name == "")
+		{
+			wchar_t* wsMsgBuf;
+			uint32_t err = errno;
+			name = strerror(err);
+			size = mbstowcs(0, name, 0) + 1;
+			wsMsgBuf = new wchar_t[size];
+			memset(wsMsgBuf, 0, size * sizeof(wchar_t));
+			size = mbstowcs(wsMsgBuf, name, size);
+
+			addError(ADDIN_E_VERY_IMPORTANT, L"DrawingCuttingPlans", wsMsgBuf, RESULT_FROM_ERRNO(err));
+			delete[] wsMsgBuf;
+			return false;
+		}
+
+		size = 640 * 400 * 1 * 3;
+		char *values = new char[size];
+		cimg_library::CImg<char> img(values, 640, 400, 1, 3, true);
+		img.fill(255);                           // Set pixel values to 0 (color : black)
+		unsigned char purple[] = { 255, 0, 255 };        // Define a purple color
+		img.draw_text(100, 100, name, purple); // Draw a purple "Hello world" at coordinates (100,100).
+		img.save("C:\\1.bmp");
+
+		delete[] values;
+
+		file = fopen("C:\\1.bmp", "rb");
+
+		fseek(file, 0, SEEK_END);
+		size = ftell(file);
+
+		if (size && m_iMemory->AllocMemory((void**)&pvarRetValue->pstrVal, size))
+		{
+			fseek(file, 0, SEEK_SET);
+			size = fread(pvarRetValue->pstrVal, 1, size, file);
+			pvarRetValue->strLen = size;
+			TV_VT(pvarRetValue) = VTYPE_BLOB;
+
+			ret = true;
+		}
+		if (file)
+			fclose(file);
+
+		break;
     }
     return ret; 
 }

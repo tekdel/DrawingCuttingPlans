@@ -722,6 +722,7 @@
   <ItemGroup>
     <ClInclude Include="AddInDefBase.h" />
     <ClInclude Include="addinlib.h" />
+    <ClInclude Include="CImg.h" />
     <ClInclude Include="com.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="DrawingCuttingPlans.h" />

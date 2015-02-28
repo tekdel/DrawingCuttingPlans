@@ -25,6 +25,7 @@ public:
         eMethStartTimer,
         eMethStopTimer,
         eMethLoadPicture,
+		eMethDrawCuttingPlan,
         eMethLast      // Always last
     };
 
