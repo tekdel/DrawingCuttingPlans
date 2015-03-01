@@ -444,12 +444,10 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
 			return false;
 		}
 
-		m_tempDir = "C:";
-
 		char *guid = generateGuid();
 		char* filePath = new char[strlen(m_tempDir) + strlen(guid)];
 		strcpy(filePath, m_tempDir);
-		if (m_tempDir[strlen(m_tempDir) - 1] == (char)"\\")
+		if (m_tempDir[strlen(m_tempDir) - 1] != (char)"\\")
 		{
 			strcat(filePath, "\\");
 		}
