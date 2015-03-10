@@ -701,6 +701,8 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="DrawingCuttingPlans.cpp" />
+    <ClCompile Include="Part.cpp" />
+    <ClCompile Include="pugixml.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-xul-192|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-xul-192|x64'">Create</PrecompiledHeader>
@@ -729,6 +731,9 @@
     <ClInclude Include="DrawingCuttingPlans.h" />
     <ClInclude Include="IMemoryManager.h" />
     <ClInclude Include="NPAPILib.h" />
+    <ClInclude Include="Part.h" />
+    <ClInclude Include="pugiconfig.hpp" />
+    <ClInclude Include="pugixml.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>

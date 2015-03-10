@@ -1,7 +1,7 @@
 ﻿
 #include "stdafx.h"
-#include "CImg.h"
 #include <string>
+#include <vector>
 
 #ifdef __linux__
 #include <unistd.h>
@@ -13,6 +13,10 @@
 
 #include <stdio.h>
 #include <wchar.h>
+#include "CImg.h"
+#include "pugixml.hpp"
+#include "Part.h"
+
 #include "DrawingCuttingPlans.h"
 
 #define TIME_LEN 34
@@ -444,6 +448,8 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
 			return false;
 		}
 
+		std::vector<Part> parts = parseXml(xml);
+
 		std::string guid = this->guid();
 		std::string filePath = m_tempDir;
 		if (filePath[filePath.length() - 1] != (char)"\\")
@@ -452,18 +458,8 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
 		}
 		filePath.append(guid);
 		filePath.append(".bmp");
-		
-		size = m_height * m_width * m_depth * m_spectrum;
-		char *values = new char[size];
-		cimg_library::CImg<char> img(values, m_height, m_width, m_depth, m_spectrum, true);
 
-		// // Set pixel values to 255 (color : white)
-		img.fill(255);
-		unsigned char purple[] = { 255, 0, 255 };        // Define a purple color
-		img.draw_text(100, 100, xml, purple); // Draw a purple "Hello world" at coordinates (100,100).
-
-		img.save(filePath.c_str());
-		delete[] values;
+		drawImage(parts, filePath.c_str());
 
 		file = fopen(filePath.c_str(), "rb");
 
@@ -575,7 +571,7 @@ void CDrawingCuttingPlans::addError(uint32_t wcode, const wchar_t* source,
 		delete[] descr;
 	}
 }
-
+//---------------------------------------------------------------------------//
 std::string CDrawingCuttingPlans::guid(){
 	size_t i;
 	const int BUFFER_SIZE = 100;
@@ -596,6 +592,58 @@ std::string CDrawingCuttingPlans::guid(){
 	delete pguid;
 
 	return (std::string)guidChar;
+}
+//---------------------------------------------------------------------------//
+bool CDrawingCuttingPlans::removeFile(std::string file){
+	int ret_code = std::remove(file.c_str());
+	return ret_code == 0;
+}
+void CDrawingCuttingPlans::drawImage(std::vector<Part> parts, const char* file){
+
+	int size = m_height * m_width * m_depth * m_spectrum;
+	char *values = new char[size];
+	cimg_library::CImg<char> img(values, m_height, m_width, m_depth, m_spectrum, true);
+	img.fill(255);
+
+	unsigned char purple[] = { 255, 0, 255 };
+	unsigned char white[] = { 255, 255, 255 };
+	unsigned char black[] = { 0, 0, 0 };
+
+	for (std::vector<Part>::const_iterator part = parts.begin(); part != parts.end(); ++part){
+		img.draw_rectangle((*part).x0, (*part).y0, (*part).width, (*part).height, black, 1, -1);
+		img.draw_text(((*part).width + (*part).x0) / 2 - (*part).comment.length() * 3, ((*part).height + (*part).y0) / 2 - 10, (*part).comment.c_str(), purple);
+	}
+
+	img.save(file);
+}
+//---------------------------------------------------------------------------//
+std::vector<Part> CDrawingCuttingPlans::parseXml(char* xml){
+	pugi::xml_document xml_doc;
+	std::vector<Part> parts;
+
+	pugi::xml_parse_result result = xml_doc.load_string(xml);
+
+	for (pugi::xml_node xml_page = xml_doc.first_child(); xml_page;)
+	{
+		pugi::xml_node xml_parts = xml_page.child("Parts");
+
+		for (pugi::xml_node xml_part = xml_parts.first_child(); xml_part; xml_part = xml_part.next_sibling())
+		{
+			int x0 = xml_part.child("x0").text().as_int();
+			int y0 = xml_part.child("y0").text().as_int();
+			int width = xml_part.child("width").text().as_int();
+			int height = xml_part.child("height").text().as_int();
+			std::string comment = xml_part.child("comment").text().get();
+
+			parts.push_back(Part(x0, y0, width, height, comment));
+		}
+		xml_page = xml_page.next_sibling();
+	}
+	return parts;
+}
+//---------------------------------------------------------------------------//
+void saveImage(std::string file){
+
 }
 //---------------------------------------------------------------------------//
 long CDrawingCuttingPlans::findName(wchar_t* names[], const wchar_t* name,
