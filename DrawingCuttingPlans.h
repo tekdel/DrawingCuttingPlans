@@ -58,7 +58,7 @@ public:
 	virtual void ADDIN_API SetLocale(const WCHAR_T* loc);
 
 private:
-	char* generateGuid();
+	std::string guid();
 	long findName(wchar_t* names[], const wchar_t* name, const uint32_t size) const;
 	void addError(uint32_t wcode, const wchar_t* source,
 		const wchar_t* descriptor, long code);

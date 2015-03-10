@@ -1,6 +1,7 @@
 ﻿
 #include "stdafx.h"
 #include "CImg.h"
+#include <string>
 
 #ifdef __linux__
 #include <unistd.h>
@@ -13,7 +14,6 @@
 #include <stdio.h>
 #include <wchar.h>
 #include "DrawingCuttingPlans.h"
-#include <string>
 
 #define TIME_LEN 34
 
@@ -444,15 +444,14 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
 			return false;
 		}
 
-		char *guid = generateGuid();
-		char* filePath = new char[strlen(m_tempDir) + strlen(guid)];
-		strcpy(filePath, m_tempDir);
-		if (m_tempDir[strlen(m_tempDir) - 1] != (char)"\\")
+		std::string guid = this->guid();
+		std::string filePath = m_tempDir;
+		if (filePath[filePath.length() - 1] != (char)"\\")
 		{
-			strcat(filePath, "\\");
+			filePath.append("\\");
 		}
-		strcat(filePath, guid);
-		strcat(filePath, ".bmp");
+		filePath.append(guid);
+		filePath.append(".bmp");
 		
 		size = m_height * m_width * m_depth * m_spectrum;
 		char *values = new char[size];
@@ -463,10 +462,10 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
 		unsigned char purple[] = { 255, 0, 255 };        // Define a purple color
 		img.draw_text(100, 100, xml, purple); // Draw a purple "Hello world" at coordinates (100,100).
 
-		img.save(filePath);
+		img.save(filePath.c_str());
 		delete[] values;
 
-		file = fopen(filePath, "rb");
+		file = fopen(filePath.c_str(), "rb");
 
 		fseek(file, 0, SEEK_END);
 		size = ftell(file);
@@ -482,10 +481,6 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
 		}
 		if (file)
 			fclose(file);
-
-		// WTF???
-		//delete[] filePath;
-		delete guid;
 
 		break;
 	}
@@ -581,7 +576,7 @@ void CDrawingCuttingPlans::addError(uint32_t wcode, const wchar_t* source,
 	}
 }
 
-char* CDrawingCuttingPlans::generateGuid(){
+std::string CDrawingCuttingPlans::guid(){
 	size_t i;
 	const int BUFFER_SIZE = 100;
 	char* guidChar = new char[BUFFER_SIZE];
@@ -600,7 +595,7 @@ char* CDrawingCuttingPlans::generateGuid(){
 
 	delete pguid;
 
-	return guidChar;
+	return (std::string)guidChar;
 }
 //---------------------------------------------------------------------------//
 long CDrawingCuttingPlans::findName(wchar_t* names[], const wchar_t* name,
