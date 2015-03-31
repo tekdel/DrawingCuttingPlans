@@ -610,8 +610,8 @@ void CDrawingCuttingPlans::drawImage(std::vector<Part> parts, const char* file){
 	unsigned char black[] = { 0, 0, 0 };
 
 	for (std::vector<Part>::const_iterator part = parts.begin(); part != parts.end(); ++part){
-		img.draw_rectangle((*part).x0, (*part).y0, (*part).width, (*part).height, black, 1, -1);
-		img.draw_text(((*part).width + (*part).x0) / 2 - (*part).comment.length() * 3, ((*part).height + (*part).y0) / 2 - 10, (*part).comment.c_str(), purple);
+		img.draw_rectangle((*part).x0, (*part).y0, (*part).x0 + (*part).width, (*part).y0 + (*part).height, black, 1, -1);
+		img.draw_text((*part).width + (*part).x0  - (*part).comment.length() * 3, (*part).height + (*part).y0 - 10, (*part).comment.c_str(), purple);
 	}
 
 	img.save(file);

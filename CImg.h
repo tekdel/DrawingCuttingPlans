@@ -34649,6 +34649,41 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
+	//! Draw an arch.
+	/**
+	\param x0 X-coordinate of the circle center.
+	\param y0 Y-coordinate of the circle center.
+	\param radius Circle radius.
+	\param fi0 initial degree in radians.
+	\param fi1 final degree in radians.
+	\param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+	\param opacity Drawing opacity.
+	\param pattern An integer whose bits describe the outline pattern.
+	**/
+	template<typename tc>
+	CImg<T>& draw_arch(const int x0, const int y0, int radius,
+		float fi0, float fi1,
+		const tc *const color, const float opacity,
+		const unsigned int pattern) {
+		cimg::unused(pattern);
+		if (is_empty()) return *this;
+		if (!color)
+			throw CImgArgumentException(_cimg_instance
+			"draw_circle(): Specified color is (null).",
+			cimg_instance);
+		if (radius<0 || x0 - radius >= width() || y0 + radius<0 || y0 - radius >= height()) return *this;
+		if (!radius) return draw_point(x0, y0, color, opacity);
+		if (radius == 1) return *this;
+
+		int x, y;
+		for (float fi = fi0; fi < fi1; fi += 0.01) {
+			y = x0 + radius * std::cos(fi);
+			x = y0 + radius * std::sin(fi);
+			draw_point(x, y, color, opacity);
+		}
+		return *this;
+	}
+
     //! Draw an image.
     /**
        \param sprite Sprite image.
