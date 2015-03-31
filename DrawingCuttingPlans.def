@@ -1,0 +1,6 @@
+LIBRARY    "DrawingCuttingPlans"
+
+EXPORTS
+GetClassObject
+DestroyObject
+GetClassNames
