@@ -13,8 +13,8 @@
 
 #include <stdio.h>
 #include <wchar.h>
-#include "CImg.h"
-#include "pugixml.hpp"
+#include "include/CImg.h"
+#include "include/pugixml.hpp"
 #include "Part.h"
 
 #include "DrawingCuttingPlans.h"
