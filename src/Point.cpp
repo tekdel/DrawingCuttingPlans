@@ -1,29 +1,20 @@
-#include <iostream>
+#include "../headers/Point.h"
 
-class Point
+Point::Point() : Point(0, 0)
 {
-private:
-	int xval;
-	int yval;
-public:
-	Point() : Point(0, 0){};
-	Point(int x, int y) : xval(x), yval(y) {};
-	~Point();
-	int x();
-	int y();
-	void x(int value);
-	void y(int value);
+}
 
-	Point& operator=(const Point& arg);
-	friend std::ostream &operator<<(std::ostream &out, Point& arg);
-};
+Point::Point(int x, int y){
+	this->xval = x;
+	this->yval = y;
+}
 
 Point::~Point()
 {
 }
 
 int Point::x(){
-	return xval;
+	return this->xval;
 }
 
 int Point::y(){
@@ -31,7 +22,7 @@ int Point::y(){
 }
 
 void Point::x(int value){
-	xval = value;
+	this->xval = value;
 }
 
 void Point::y(int value){
@@ -48,4 +39,3 @@ std::ostream &operator<<(std::ostream &out, Point& arg){
 	out << "Point(x,y) = ( " << arg.x() << " , " << arg.y() << " )" << std::endl;
 	return out;
 }
-

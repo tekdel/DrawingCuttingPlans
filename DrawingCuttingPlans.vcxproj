@@ -701,8 +701,17 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="DrawingCuttingPlans.cpp" />
-    <ClCompile Include="Part.cpp" />
     <ClCompile Include="include\pugixml.cpp" />
+    <ClCompile Include="src\CurveSawsArc.cpp" />
+    <ClCompile Include="src\CurveSawsLine.cpp" />
+    <ClCompile Include="src\Detail.cpp" />
+    <ClCompile Include="src\EuroGrooveArc.cpp" />
+    <ClCompile Include="src\EuroGrooveLine.cpp" />
+    <ClCompile Include="src\GenericArc.cpp" />
+    <ClCompile Include="src\GenericLine.cpp" />
+    <ClCompile Include="src\Point.cpp" />
+    <ClCompile Include="src\SlopeInterceptEquationLine.cpp" />
+    <ClCompile Include="src\StandardEquationLine.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-xul-192|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-xul-192|x64'">Create</PrecompiledHeader>
@@ -725,25 +734,26 @@
   <ItemGroup>
     <ClInclude Include="AddInDefBase.h" />
     <ClInclude Include="addinlib.h" />
-    <ClInclude Include="libs\ArchAttributes.h" />
-    <ClInclude Include="libs\Attributes.h" />
-    <ClInclude Include="libs\Arch.h" />
+    <ClInclude Include="headers\CurveSawsArc.h" />
+    <ClInclude Include="headers\CurveSawsLine.h" />
+    <ClInclude Include="headers\Detail.h" />
+    <ClInclude Include="headers\Drawable.h" />
+    <ClInclude Include="headers\EuroGrooveArc.h" />
+    <ClInclude Include="headers\EuroGrooveLine.h" />
+    <ClInclude Include="headers\GenericArc.h" />
+    <ClInclude Include="headers\GenericLine.h" />
+    <ClInclude Include="headers\Geometry.h" />
+    <ClInclude Include="headers\Point.h" />
+    <ClInclude Include="headers\SlopeInterceptEquationLine.h" />
+    <ClInclude Include="headers\StandardEquationLine.h" />
     <ClInclude Include="include\CImg.h" />
     <ClInclude Include="com.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="DrawingCuttingPlans.h" />
     <ClInclude Include="IMemoryManager.h" />
-    <ClInclude Include="libs\GenericLineEq.h" />
-    <ClInclude Include="libs\Line.h" />
-    <ClInclude Include="libs\LineAttributes.h" />
-    <ClInclude Include="libs\MathHelper.h" />
-    <ClInclude Include="libs\Point.h" />
-    <ClInclude Include="libs\SlopeInterceptLineEq.h" />
     <ClInclude Include="NPAPILib.h" />
-    <ClInclude Include="Part.h" />
     <ClInclude Include="include\pugiconfig.hpp" />
     <ClInclude Include="include\pugixml.hpp" />
-    <ClInclude Include="libs\Shape.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>

@@ -15,12 +15,19 @@
 #include <wchar.h>
 #include "include/CImg.h"
 #include "include/pugixml.hpp"
-#include "Part.h"
 
 #include "DrawingCuttingPlans.h"
+#include "headers/Geometry.h"
+#include "src/Detail.cpp"
+#include "src/GenericArc.cpp"
+#include "src/EuroGrooveArc.cpp"
+#include "src/CurveSawsArc.cpp"
+#include "src/GenericLine.cpp"
+#include "src/CurveSawsLine.cpp"
+#include "src/EuroGrooveLine.cpp"
 
 #define TIME_LEN 34
-
+#define PI 3.141592653589793238463
 #define BASE_ERRNO     7
 
 static wchar_t *g_PropNames[] = { L"Height", L"Weight", L"Depth", L"Spectrum", L"TempDir" };
@@ -448,7 +455,7 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
 			return false;
 		}
 
-		std::vector<Part> parts = parseXml(xml);
+		//std::vector<Part> parts = parseXml(xml);
 
 		std::string guid = this->guid();
 		std::string filePath = m_tempDir;
@@ -459,7 +466,7 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
 		filePath.append(guid);
 		filePath.append(".bmp");
 
-		drawImage(parts, filePath.c_str());
+		drawImage(filePath.c_str());
 
 		file = fopen(filePath.c_str(), "rb");
 
@@ -598,7 +605,7 @@ bool CDrawingCuttingPlans::removeFile(std::string file){
 	int ret_code = std::remove(file.c_str());
 	return ret_code == 0;
 }
-void CDrawingCuttingPlans::drawImage(std::vector<Part> parts, const char* file){
+void CDrawingCuttingPlans::drawImage(const char* file){
 
 	int size = m_height * m_width * m_depth * m_spectrum;
 	char *values = new char[size];
@@ -609,15 +616,41 @@ void CDrawingCuttingPlans::drawImage(std::vector<Part> parts, const char* file){
 	unsigned char white[] = { 255, 255, 255 };
 	unsigned char black[] = { 0, 0, 0 };
 
+	GenericArc<char> *ga = new GenericArc<char>(Point(400, 400), 130, PI / 2, PI, black);
+	EuroGrooveArc<char> *gaEU = new EuroGrooveArc<char>(Point(400, 400), 120, PI / 2, PI, black);
+	CurveSawsArc<char> *gaCS = new CurveSawsArc<char>(Point(400, 400), 130, PI / 2, PI, black);
+
+	GenericLine<char> *gl = new GenericLine<char>(Point(200, 100), Point(300, 50), 1, purple);
+	CurveSawsLine<char> *csl = new CurveSawsLine<char>(Point(200, 100), Point(300, 50), 1, black);
+
+	EuroGrooveLine<char> *eul = new EuroGrooveLine<char>(Point(200, 100), Point(300, 50), 1, black);
+
+	Detail<char> dt;
+	dt
+		.Add(ga)
+		.Add(gaEU)
+		.Add(gaCS)
+		.Add(gl)
+		.Add(csl)
+		.Add(eul)
+		.Draw(img);
+
+	delete gaEU;
+	delete ga;
+	delete gaCS;
+	delete gl;
+	delete csl;
+	delete eul;
+	/*
 	for (std::vector<Part>::const_iterator part = parts.begin(); part != parts.end(); ++part){
 		img.draw_rectangle((*part).x0, (*part).y0, (*part).x0 + (*part).width, (*part).y0 + (*part).height, black, 1, -1);
 		img.draw_text((*part).width + (*part).x0  - (*part).comment.length() * 3, (*part).height + (*part).y0 - 10, (*part).comment.c_str(), purple);
-	}
+	}*/
 
 	img.save(file);
 }
 //---------------------------------------------------------------------------//
-std::vector<Part> CDrawingCuttingPlans::parseXml(char* xml){
+/*std::vector<Part> CDrawingCuttingPlans::parseXml(char* xml){
 	pugi::xml_document xml_doc;
 	std::vector<Part> parts;
 
@@ -640,7 +673,7 @@ std::vector<Part> CDrawingCuttingPlans::parseXml(char* xml){
 		xml_page = xml_page.next_sibling();
 	}
 	return parts;
-}
+}*/
 //---------------------------------------------------------------------------//
 void saveImage(std::string file){
 

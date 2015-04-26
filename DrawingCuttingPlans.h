@@ -60,8 +60,7 @@ public:
 private:
 	std::string guid();
 	bool removeFile(std::string file);
-	void drawImage(std::vector<Part>, const char* file);
-	std::vector<Part> parseXml(char* xml);
+	void drawImage(const char* file);
 	long findName(wchar_t* names[], const wchar_t* name, const uint32_t size) const;
 	void addError(uint32_t wcode, const wchar_t* source,
 		const wchar_t* descriptor, long code);
