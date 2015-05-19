@@ -9,10 +9,7 @@ Detail<T>& Detail<T>::Add(Drawable<T>* element){
 
 template<typename T>
 Detail<T>& Detail<T>::Add(std::vector<Drawable<T>*> elements){
-	for (std::vector<Drawable<T>*>::iterator it = elements.begin(); it != elements.end(); ++it)
-	{
-		this->_elements.push_back(it);
-	}
+	this->_elements.insert(this->_elements.end(), elements.begin(), elements.end());
 	return *this;
 }
 

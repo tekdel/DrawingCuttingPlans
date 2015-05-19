@@ -466,7 +466,7 @@ bool CDrawingCuttingPlans::CallAsFunc(const long lMethodNum,
 		filePath.append(guid);
 		filePath.append(".bmp");
 
-		drawImage(filePath.c_str());
+		drawImage(xml, filePath.c_str());
 
 		file = fopen(filePath.c_str(), "rb");
 
@@ -605,42 +605,210 @@ bool CDrawingCuttingPlans::removeFile(std::string file){
 	int ret_code = std::remove(file.c_str());
 	return ret_code == 0;
 }
-void CDrawingCuttingPlans::drawImage(const char* file){
+void CDrawingCuttingPlans::drawImage(char *xml, const char* file){
+
+	unsigned char black[] = { 0, 0, 0 };
+
+	std::vector<Drawable<char>*> elements;
+
+	pugi::xml_document xml_doc;
+
+	pugi::xml_parse_result result = xml_doc.load_string(xml);
+
+	for (pugi::xml_node xml_page = xml_doc.first_child(); xml_page;)
+	{
+		pugi::xml_node xml_parts = xml_page.child("Parts");
+
+		for (pugi::xml_node xml_part = xml_parts.first_child(); xml_part; xml_part = xml_part.next_sibling())
+		{
+			int x0 = xml_part.child("x0").text().as_int(), x1 = x0, x2 = x0;
+			int y0 = xml_part.child("y0").text().as_int(), y1 = y0, y3 = y0;
+
+			int width = xml_part.child("width").text().as_int();
+			int height = xml_part.child("height").text().as_int();
+
+			int y2 = y0 + height, y4 = y2;
+			int x3 = x0 + width, x4 = x3;
+
+			// LeftTop
+			pugi::xml_node leftTop = xml_part.child("leftTop");
+
+			if (leftTop.child("arc") != 0){
+				int radius = leftTop.child("arc").child("radius").text().as_int();
+				elements.push_back(new GenericArc<char>(Point(x0 + radius, y0 + radius), radius, PI, 3 * PI / 2, black));
+				x1 = x0 + radius;
+				y1 = y0 + radius;
+
+				if (leftTop.child("arc").child("curveSaws") != 0){
+					elements.push_back(new CurveSawsArc<char>(Point(x0 + radius, y0 + radius), radius, PI, 3 * PI / 2, black));
+				}
+
+				if (leftTop.child("arc").child("euroGroove") != 0){
+					elements.push_back(new EuroGrooveArc<char>(Point(x0 + radius, y0 + radius), radius - 10, PI, 3 * PI / 2, black));
+				}
+
+			}
+			else if (leftTop.child("curve") != 0){
+
+				if (leftTop.child("curveSaws") != 0){
+
+				}
+
+				if (leftTop.child("euroGroove") != 0){
+
+				}
+			}
+
+			// leftBottom
+			pugi::xml_node leftBottom = xml_part.child("leftBottom");
+
+			if (leftBottom.child("arc") != 0){
+				int radius = leftBottom.child("arc").child("radius").text().as_int();
+				elements.push_back(new GenericArc<char>(Point(x0 + radius, y0 + height - radius), radius, PI / 2, PI, black));
+				x2 = x0 + radius;
+				y2 = y0 + height - radius;
+
+				if (leftBottom.child("arc").child("curveSaws") != 0){
+					elements.push_back(new CurveSawsArc<char>(Point(x0 + radius, y0 + height - radius), radius, PI / 2, PI, black));
+				}
+
+				if (leftBottom.child("arc").child("euroGroove") != 0){
+					elements.push_back(new EuroGrooveArc<char>(Point(x0 + radius, y0 + height - radius), radius - 10, PI / 2, PI, black));
+				}
+
+			}
+			else if (leftBottom.child("curve") != 0){
+
+				if (leftBottom.child("curveSaws") != 0){
+
+				}
+
+				if (leftTop.child("euroGroove") != 0){
+
+				}
+			}
+
+			// left
+			pugi::xml_node left = xml_part.child("left");
+			elements.push_back(new GenericLine<char>(Point(x0, y1), Point(x0, y2), 1, black));
+
+			if (left.child("line").child("curveSaws") != 0){
+				elements.push_back(new CurveSawsLine<char>(Point(x0, y1), Point(x0, y2), 1, black));
+			}
+
+			if (left.child("line").child("euroGroove") != 0){
+				elements.push_back(new EuroGrooveLine<char>(Point(x0, y1), Point(x0, y2), 1, black));
+			}
+
+			// rightTop
+			pugi::xml_node rightTop = xml_part.child("rightTop");
+
+			if (rightTop.child("arc") != 0){
+				int radius = rightTop.child("arc").child("radius").text().as_int();
+				elements.push_back(new GenericArc<char>(Point(x0 + width - radius, y0 + radius), radius, 3 * PI / 2, 2 * PI, black));
+				x3 = x0 + width - radius;
+				y3 = y0 + radius;
+
+				if (rightTop.child("arc").child("curveSaws") != 0){
+					elements.push_back(new CurveSawsArc<char>(Point(x0 + width - radius, y0 + radius), radius, 3 * PI / 2, 2 * PI, black));
+				}
+
+				if (rightTop.child("arc").child("euroGroove") != 0){
+					elements.push_back(new EuroGrooveArc<char>(Point(x0 + width - radius, y0 + radius), radius - 10, 3 * PI / 2, 2 * PI, black));
+				}
+
+			}
+			else if (rightTop.child("curve") != 0){
+
+				if (rightTop.child("curveSaws") != 0){
+
+				}
+
+				if (rightTop.child("euroGroove") != 0){
+
+				}
+			}
+
+			// Top
+			pugi::xml_node top = xml_part.child("top");
+			elements.push_back(new GenericLine<char>(Point(x1, y0), Point(x3, y0), 1, black));
+
+			if (top.child("line").child("curveSaws") != 0){
+				elements.push_back(new CurveSawsLine<char>(Point(x1, y0), Point(x3, y0), 1, black));
+			}
+
+			if (top.child("line").child("euroGroove") != 0){
+				elements.push_back(new EuroGrooveLine<char>(Point(x1, y0), Point(x3, y0), 1, black));
+			}
+
+			//rightBottom
+			pugi::xml_node rightBottom = xml_part.child("rightBottom");
+
+			if (rightBottom.child("arc") != 0){
+				int radius = rightBottom.child("arc").child("radius").text().as_int();
+				elements.push_back(new GenericArc<char>(Point(x0 + width - radius, y0 + height - radius), radius, 0, PI / 2, black));
+				x4 = x0 + width - radius;
+				y4 = y0 + height - radius;
+
+				if (rightBottom.child("arc").child("curveSaws") != 0){
+					elements.push_back(new CurveSawsArc<char>(Point(x0 + width - radius, y0 + height - radius), radius, 0, PI / 2, black));
+				}
+
+				if (rightBottom.child("arc").child("euroGroove") != 0){
+					elements.push_back(new EuroGrooveArc<char>(Point(x0 + width - radius, y0 + height - radius), radius - 10, 0, PI / 2, black));
+				}
+
+			}
+			else if (rightBottom.child("curve") != 0){
+
+				if (rightBottom.child("curveSaws") != 0){
+
+				}
+
+				if (rightBottom.child("euroGroove") != 0){
+
+				}
+			}
+
+			// Right
+			pugi::xml_node right = xml_part.child("right");
+			elements.push_back(new GenericLine<char>(Point(x0 + width, y3), Point(x0 + width, y4), 0, black));
+
+			if (right.child("line").child("curveSaws") != 0){
+				elements.push_back(new CurveSawsLine<char>(Point(x0 + width, y3), Point(x0 + width, y4), 0, black));
+			}
+
+			if (right.child("line").child("euroGroove") != 0){
+				elements.push_back(new EuroGrooveLine<char>(Point(x0 + width, y3), Point(x0 + width, y4), 0, black));
+			}
+
+			// Bottom
+			pugi::xml_node bottom = xml_part.child("bottom");
+			elements.push_back(new GenericLine<char>(Point(x2, y0 + height), Point(x4, y0 + height), 0, black));
+
+			if (bottom.child("line").child("curveSaws") != 0){
+				elements.push_back(new CurveSawsLine<char>(Point(x2, y0 + height), Point(x4, y0 + height), 0, black));
+			}
+
+			if (bottom.child("line").child("euroGroove") != 0){
+				elements.push_back(new EuroGrooveLine<char>(Point(x2, y0 + height), Point(x4, y0 + height), 0, black));
+			}
+
+			std::cout << "x0 : " << x0 << " y0 : " << y0 << " width : " << width << " height : " << height << std::endl;
+		}
+		xml_page = xml_page.next_sibling();
+	}
 
 	int size = m_height * m_width * m_depth * m_spectrum;
 	char *values = new char[size];
 	cimg_library::CImg<char> img(values, m_height, m_width, m_depth, m_spectrum, true);
 	img.fill(255);
 
-	unsigned char purple[] = { 255, 0, 255 };
-	unsigned char white[] = { 255, 255, 255 };
-	unsigned char black[] = { 0, 0, 0 };
-
-	GenericArc<char> *ga = new GenericArc<char>(Point(400, 400), 130, PI / 2, PI, black);
-	EuroGrooveArc<char> *gaEU = new EuroGrooveArc<char>(Point(400, 400), 120, PI / 2, PI, black);
-	CurveSawsArc<char> *gaCS = new CurveSawsArc<char>(Point(400, 400), 130, PI / 2, PI, black);
-
-	GenericLine<char> *gl = new GenericLine<char>(Point(200, 100), Point(300, 50), 1, purple);
-	CurveSawsLine<char> *csl = new CurveSawsLine<char>(Point(200, 100), Point(300, 50), 1, black);
-
-	EuroGrooveLine<char> *eul = new EuroGrooveLine<char>(Point(200, 100), Point(300, 50), 1, black);
-
 	Detail<char> dt;
 	dt
-		.Add(ga)
-		.Add(gaEU)
-		.Add(gaCS)
-		.Add(gl)
-		.Add(csl)
-		.Add(eul)
+		.Add(elements)
 		.Draw(img);
 
-	delete gaEU;
-	delete ga;
-	delete gaCS;
-	delete gl;
-	delete csl;
-	delete eul;
 	/*
 	for (std::vector<Part>::const_iterator part = parts.begin(); part != parts.end(); ++part){
 		img.draw_rectangle((*part).x0, (*part).y0, (*part).x0 + (*part).width, (*part).y0 + (*part).height, black, 1, -1);
